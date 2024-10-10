@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .dashboard-header {
+            background-color: #0d47a1;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 28px;
+            width: 100%;
+        }
+        .admin-info {
+            font-size: 14px;
+            margin-top: 5px;
+            color: #bbdefb;
+        }
+        .team-grid {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px;
+            gap: 20px;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        .team-card {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 25px;
+            width: 230px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            text-align: center;
+        }
+        .team-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+            background-color: #bbdefb;
+        }
+        .team-card h3 {
+            margin: 10px 0;
+            font-size: 18px;
+            color: #0d47a1;
+        }
+        .team-card p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        .team-details, .task-management, .leave-management {
+            display: none;
+            background-color: #ffffff;
+            padding: 25px;
+            margin: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 80%;
+        }
+        .team-details h2, .task-management h3, .leave-management h3 {
+            margin-bottom: 15px;
+            color: #0d47a1;
+        }
+        .team-details ul {
+            list-style: none;
+            padding: 0;
+        }
+        .team-details ul li {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        .chart-container {
+            width: 250px;  
+            margin: 25px auto;
+            display: flex;
+            justify-content: center;
+        }
+        .task-calendar, .task-history, .leave-calendar {
+            margin-top: 20px;
+        }
+        .task-calendar input[type="text"], .task-calendar input[type="date"], 
+        .task-calendar select, .leave-calendar select {
+            margin-right: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #0d47a1;
+            width: 150px;
+        }
+        .task-calendar button, .leave-calendar button {
+            background-color: #0d47a1;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 10px 15px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            margin-left: 10px;
+        }
+        .task-calendar button:hover, .leave-calendar button:hover {
+            background-color: #1976d2;
+        }
+        .ongoing-tasks, .completed-tasks {
+            margin-top: 20px;
+        }
+        .task-section, .leave-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #bbdefb;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .task-name, .leave-name {
+            flex-grow: 1;
+            margin-right: 10px;
+            font-weight: bold;
+            color: #0d47a1;
+        }
+        .task-buttons, .leave-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        .task-buttons button, .leave-buttons button {
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .task-buttons button:first-child, .leave-buttons button:first-child {
+            background-color: #4caf50;
+            color: white;
+        }
+        .task-buttons button:last-child, .leave-buttons button:last-child {
+            background-color: #f44336;
+            color: white;
+        }
+        .task-buttons button:hover, .leave-buttons button:hover {
+            opacity: 0.8;
+        }
+        @media (max-width: 768px) {
+            .team-card {
+                width: 90%;
+            }
+            .team-grid {
+                flex-direction: column;
+                align-items: center;
+            }
+            .task-calendar input[type="text"], .task-calendar input[type="date"], 
+            .task-calendar select, .leave-calendar select {
+                width: 100%;
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-header">
+    <h1>Welcome Admin</h1>
+    <div class="admin-info">
+        <p><i class="fas fa-user"></i> Admin Name: Hanshul</p>
+        <p><i class="fas fa-envelope"></i> Email: hanshul@gmail.com</p>
+    </div>
+</div>
+
+<div class="team-grid"> 
+    <div class="team-card" onclick="showTeamDetails('team1')">
+        <h3>Team 1: Mobile Development</h3>
+        <p>Leader: Sophia Taylor</p>
+    </div>
+    <div class="team-card" onclick="showTeamDetails('team2')">
+        <h3>Team 2: UI/UX Design</h3>
+        <p>Leader: Michael Davis</p>
+    </div>
+    <div class="team-card" onclick="showTeamDetails('team3')">
+        <h3>Team 3: Digital Marketing</h3>
+        <p>Leader: Liam Wilson</p>
+    </div>
+    <div class="team-card" onclick="showTeamDetails('team4')">
+        <h3>Team 4: Sales and Outreach</h3>
+        <p>Leader: Emma Mille</p>
+    </div>
+</div>
+
+<div id="teamDetails" class="team-details">
+    <h2 id="teamName"></h2>
+    <p><b>Leader:</b> <span id="teamLeader"></span></p>
+    <p><b>Project:</b> <span id="teamProject"></span></p>
+    <h3>Team Members:</h3>
+    <ul id="teamMembers"></ul>
+    <div class="chart-container">
+        <canvas id="taskChart" width="250" height="250"></canvas>
+    </div>
+</div>
+
+<div class="task-management" id="taskManagement">
+    <h3>Task Management</h3>
+    <div class="task-calendar">
+        <input type="text" id="taskName" placeholder="Task Name" required>
+        <input type="date" id="taskDate" required>
+        <div class="team-selection">
+            <label for="teamSelect">Assign Task to Team:</label>
+            <select id="teamSelect">
+                <option value="team1">Team 1: Mobile Development</option>
+                <option value="team2">Team 2: UI/UX Design</option>
+                <option value="team3">Team 3: Digital Marketing</option>
+                <option value="team4">Team 4: Sales and Outreach</option>
+            </select>
+        </div>
+        <button onclick="assignTask()">Assign Task</button>
+    </div>
+    <h3>Ongoing Tasks</h3>
+    <div id="ongoingTasks" class="ongoing-tasks"></div>
+    <h3>Completed Tasks</h3>
+    <div id="completedTasks" class="completed-tasks"></div>
+</div>
+
+<div class="leave-management" id="leaveManagement">
+    <h3>Leave Management</h3>
+    <div class="leave-calendar">
+        <label for="leaveTeamSelect">Select Team:</label>
+        <select id="leaveTeamSelect">
+            <option value="team1">Team 1: Mobile Development</option>
+            <option value="team2">Team 2: UI/UX Design</option>
+            <option value="team3">Team 3: Digital Marketing</option>
+            <option value="team4">Team 4: Sales and Outreach</option>
+        </select>
+        <input type="text" id="leaveName" placeholder="Member Name" required>
+        <button onclick="approveLeave()">Approve Leave</button>
+    </div>
+    <h3>Leave Requests</h3>
+    <div id="leaveRequests" class="leave-requests"></div>
+</div>
+
+<script>
+    const teams = {
+        team1: { 
+            name: "Mobile Development", 
+            leader: "Sophia Taylor", 
+            project: "Mobile App Launch", 
+            members: ["Alice", "Bob", "Charlie"], 
+            tasks: [] 
+        },
+        team2: { 
+            name: "UI/UX Design", 
+            leader: "Michael Davis", 
+            project: "Website Revamp", 
+            members: ["David", "Eve", "Frank"], 
+            tasks: [] 
+        },
+        team3: { 
+            name: "Digital Marketing", 
+            leader: "Liam Wilson", 
+            project: "Social Media Campaign", 
+            members: ["Grace", "Heidi", "Ivan"], 
+            tasks: [] 
+        },
+        team4: { 
+            name: "Sales and Outreach", 
+            leader: "Emma Mille", 
+            project: "Market Expansion", 
+            members: ["Judy", "Kathy", "Leo"], 
+            tasks: [] 
+        }
+    };
+
+    let taskChart; // Declare chart variable outside of function
+
+    function showTeamDetails(teamKey) {
+        const team = teams[teamKey];
+        document.getElementById("teamName").innerText = team.name;
+        document.getElementById("teamLeader").innerText = team.leader;
+        document.getElementById("teamProject").innerText = team.project;
+        const teamMembersList = document.getElementById("teamMembers");
+        teamMembersList.innerHTML = '';
+        team.members.forEach(member => {
+            const li = document.createElement("li");
+            li.innerText = member;
+            teamMembersList.appendChild(li);
+        });
+        updateChart(teamKey);
+        document.getElementById("teamDetails").style.display = "block";
+        document.getElementById("taskManagement").style.display = "block";
+        document.getElementById("leaveManagement").style.display = "block";
+    }
+
+    function updateChart(teamKey) {
+        const team = teams[teamKey];
+        const ongoingCount = team.tasks.length;
+        const completedCount = team.tasks.filter(task => task.completed).length;
+
+        const ctx = document.getElementById("taskChart").getContext("2d");
+        
+        if (taskChart) {
+            taskChart.data.datasets[0].data = [ongoingCount, completedCount];
+            taskChart.update();
+        } else {
+            taskChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Ongoing Tasks', 'Completed Tasks'],
+                    datasets: [{
+                        data: [ongoingCount, completedCount],
+                        backgroundColor: ['#ff6384', '#36a2eb'],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                    }
+                }
+            });
+        }
+    }
+
+    function assignTask() {
+        const taskName = document.getElementById("taskName").value;
+        const taskDate = document.getElementById("taskDate").value;
+        const teamKey = document.getElementById("teamSelect").value;
+
+        if (taskName && taskDate) {
+            const task = { name: taskName, date: taskDate, completed: false };
+            teams[teamKey].tasks.push(task);
+            document.getElementById("taskName").value = '';
+            document.getElementById("taskDate").value = '';
+            updateChart(teamKey);
+            renderTasks(teamKey);
+        } else {
+            alert("Please enter a task name and date.");
+        }
+    }
+
+    function renderTasks(teamKey) {
+        const ongoingTasksContainer = document.getElementById("ongoingTasks");
+        const completedTasksContainer = document.getElementById("completedTasks");
+        ongoingTasksContainer.innerHTML = '';
+        completedTasksContainer.innerHTML = '';
+
+        teams[teamKey].tasks.forEach(task => {
+            const taskElement = document.createElement("div");
+            taskElement.className = "task-section";
+
+            const taskNameElement = document.createElement("span");
+            taskNameElement.className = "task-name";
+            taskNameElement.innerText = task.name;
+
+            const taskButtons = document.createElement("div");
+            taskButtons.className = "task-buttons";
+
+            const completeButton = document.createElement("button");
+            completeButton.innerText = "Complete";
+            completeButton.onclick = () => {
+                task.completed = true;
+                renderTasks(teamKey);
+                updateChart(teamKey);
+            };
+
+            const deleteButton = document.createElement("button");
+            deleteButton.innerText = "Delete";
+            deleteButton.onclick = () => {
+                teams[teamKey].tasks = teams[teamKey].tasks.filter(t => t !== task);
+                renderTasks(teamKey);
+                updateChart(teamKey);
+            };
+
+            taskButtons.appendChild(completeButton);
+            taskButtons.appendChild(deleteButton);
+            taskElement.appendChild(taskNameElement);
+            taskElement.appendChild(taskButtons);
+
+            if (task.completed) {
+                completedTasksContainer.appendChild(taskElement);
+            } else {
+                ongoingTasksContainer.appendChild(taskElement);
+            }
+        });
+    }
+
+    function approveLeave() {
+        const teamKey = document.getElementById("leaveTeamSelect").value;
+        const leaveName = document.getElementById("leaveName").value;
+        // Logic to approve leave can be added here
+        alert(`Leave approved for ${leaveName} in ${teams[teamKey].name}.`);
+        document.getElementById("leaveName").value = '';
+    }
+</script>
+
+</body>
+</html>
